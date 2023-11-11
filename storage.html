@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage desde la Web</title>
+</head>
+
+<body>
+    <h1>Subida de Archivos</h1>
+    <form>
+        <input type="file" name="myfile" id="myfile">
+        <br>
+        <p>
+        </p>
+    </form>
+    <img src="" alt="">
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7d-xJVn0KkVHUeXVfUFp3cUfGj6HiFCE",
+            authDomain: "firebas-db7ad.firebaseapp.com",
+            projectId: "firebas-db7ad",
+            storageBucket: "firebas-db7ad.appspot.com",
+            messagingSenderId: "961959949569",
+            appId: "1:961959949569:web:265951a19b7f224d69d700",
+            measurementId: "G-6RZDWTW7KX"
+        };
+
+        const inputFile = document.querySelector('#myfile');
+
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app);
+
+        function loadFile(file) {
+            const storageRef = ref(storage, 'images/' + file.name);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    document.querySelector('p').innerHTML = 'Upload is ' + progress + '% done'
+
+                },
+                (error) => {
+                    // Handle unsuccessful uploads
+                },
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log('File available at', downloadURL);
+                        document.querySelector('img').src = downloadURL;
+                    });
+
+                }
+            );
+        }
+
+        inputFile.addEventListener('change', e => {
+            loadFile(e.target.files[0]);
+        });
+
+    </script>
+</body>
+
+</html>
